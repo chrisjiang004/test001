@@ -34,8 +34,9 @@ public class TestSearch {
 //                { "alibaba", 100f },
 //                { "xiaomi", 8f },
 //                { "jd", 33f }
-//        });
+//        });//list中是键值对
 
+        //使用yaml的存取参数
         ObjectMapper mapper=new ObjectMapper(new YAMLFactory());
         String path="/"+TestSearch.class.getCanonicalName().replace('.', '/')+".yaml";
         Object[][] demo=mapper.readValue(
@@ -47,6 +48,7 @@ public class TestSearch {
     @Parameterized.Parameter(0)
     public String stock;
 
+    //junit4的数据驱动
     @Parameterized.Parameter(1)
     public Double price;
 
@@ -56,6 +58,7 @@ public class TestSearch {
     }
     @Test
     public void search() throws IOException {
+        //greaterThanOrEqualTo大于等于 .floatValue()转成float类型
         assertThat(searchPage.search(stock).getCurrentPrice(), greaterThanOrEqualTo(price.floatValue()));
     }
 //    @Test

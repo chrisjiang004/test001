@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class BasePage {
+    //使用泛型规定好AndroidDriver为WebElement类型
+    //所有page都要用driver所有提取成静态类直接继承并使用
     public static AndroidDriver<WebElement> driver;
     private PageObjectModel model=new PageObjectModel();
 
@@ -45,34 +47,61 @@ public class BasePage {
         model.engine="appium";
     }
 
+
     //通用元素定位与异常处理机制
+//    public static WebElement findElement(By by) {
+//        //todo: 递归是更好的
+//        //todo: 如果定位的元素是动态变化位置
+//
+//        System.out.println(by);
+//        try {
+//            return driver.findElement(by);//这里的抛错时间是隐式等待时间
+//        } catch (Exception e) {
+//            handleAlert();
+//
+//            return driver.findElement(by);
+//        }
+//    }
+    //递归方法处理元素定位与异常机制
+    static int i = 1;
     public static WebElement findElement(By by) {
-        //todo: 递归是更好的
-        //todo: 如果定位的元素是动态变化位置
-
-        System.out.println(by);
+        //定位失败异常后才去处理黑名单
         try {
-            return driver.findElement(by);
+            System.out.println(by);
+            return driver.findElement(by);//这里的抛错时间是隐式等待时间
         } catch (Exception e) {
-            handleAlert();
-
-            return driver.findElement(by);
+            if (i > 3){   //设置最多递归三次
+                i = 1;
+                return driver.findElement(by);
+            }
+            System.out.println("进入弹框处理第"+i+"次");
+            handleAlertByPageSource();
+            i++;
+            return findElement(by); //最后调用自身完成递归，防止多弹框同时出现造成定位失败
         }
     }
 
+    //递归最多3次处理点击异常
+    static int j = 1;
     public static void click(By by) {
-        //todo: 递归是更好的
-
         System.out.println(by);
         try {
             driver.findElement(by).click();
         } catch (Exception e) {
-            handleAlert();
-
-            driver.findElement(by).click();
+            if (j>3){
+                j=1;
+                driver.findElement(by).click();
+            }
+            else {
+                System.out.println("进入弹框处理第"+j+"次");
+                handleAlertByPageSource();
+                j++;
+                findElement(by).click();//最后调用自身完成递归，防止多弹框同时出现造成定位失败
+            }
         }
     }
 
+    //封装findElenments
     public static List<WebElement> findElements(By by) {
         System.out.println(by);
         return driver.findElements(by);
@@ -82,19 +111,20 @@ public class BasePage {
         By tips = By.id("com.xueqiu.android:id/snb_tip_text");
         List<By> alertBoxs = new ArrayList<>();
         //todo: 不需要所有的都判断是否存在
-        alertBoxs.add(By.id("com.xueqiu.android:id/image_cancel"));
+        alertBoxs.add(By.id("com.xueqiu.android:id/image_cancel"));//升级弹框
         alertBoxs.add(tips);
-        alertBoxs.add(By.id("com.xueqiu.android:id/md_buttonDefaultNegative"));
+        alertBoxs.add(By.id("com.xueqiu.android:id/md_buttonDefaultNegative"));//下次再说弹框
 //        alertBoxs.add(By.xpath("dddd"));
 
         driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
         alertBoxs.forEach(alert -> {
             List<WebElement> ads = driver.findElements(alert);
-
+            //特殊处理tips 因为tips需要点击非tips区域才能关掉tips 增加判断分支
             if (alert.equals(tips)) {
                 System.out.println("snb_tip found");
-                Dimension size = driver.manage().window().getSize();
+                Dimension size = driver.manage().window().getSize();//获取屏幕高宽
                 try {
+                    //这里还要findElenments一下确定tips还是存在的，再去点击。防止有的页面出现了该tips但一下就消失了导致点击报错
                     if (driver.findElements(tips).size() >= 1) {
                         new TouchAction(driver).tap(PointOption.point(size.width / 2, size.height / 2)).perform();
                     }
@@ -105,26 +135,69 @@ public class BasePage {
                     System.out.println("snb_tip clicked");
                 }
             } else if (ads.size() >= 1) {
-                ads.get(0).click();
+                ads.get(0).click();//else 处理alert弹框
             }
         });
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
     }
 
-    private static void handleAlertByPageSource() {
-        //todo: xpath匹配， 标记 定位
-        String xml = driver.getPageSource();
-        List<String> alertBoxs = new ArrayList<>();
-        alertBoxs.add("xxx");
-        alertBoxs.add("yyy");
+    //很多弹框的话，最好的是直接定位到到底哪个弹框在界面上，元素的判断使用xpath
+    public static void handleAlertByPageSource(){
+        String pageSource = driver.getPageSource();//可以得到一个文本字符串，也可以理解为当前页面的xml
+        //黑名单
+        String adBox = "com.xueqiu.android:id/ib_close";
+        String gesturePromptBox = "com.xueqiu.android:id/snb_tip_text";
+        String evaluateBox = "com.xueqiu.android:id/md_buttonDefaultNegative";
 
-        alertBoxs.forEach(alert -> {
-            if (xml.contains(alert)) {
-                driver.findElement(By.id(alert)).click();
+        //将标记和定位符存入map
+        HashMap<String,By> map = new HashMap<>();
+        map.put(adBox,By.id("ib_close"));
+        map.put(gesturePromptBox,By.id("snb_tip_text"));
+        map.put(evaluateBox,By.id("md_buttonDefaultNegative"));
+
+        //临时修改隐式等待时间，防止查找黑名单中元素过久
+        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+
+        //遍历map，判断黑名单弹框元素是否存在于当前pageSource，存在即点击处理
+        map.entrySet().forEach(entry ->{
+            if (pageSource.contains(entry.getKey())){
+                if (entry.getKey().equals("com.xueqiu.android:id/snb_tip_text")){
+                    System.out.println("gesturePromptBox found");
+                    Dimension size = driver.manage().window().getSize();
+                    //防止其他页面有该tips但一下就消失了导致点击报错
+                    try {
+                        if (driver.findElements(By.id("com.xueqiu.android:id/snb_tip_text")).size()>=1);{
+                            new TouchAction(driver).tap(PointOption.point(size.width / 2, size.height / 2)).perform();
+                        }
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        System.out.println("snb_tip clicked");
+                    }
+                }else {
+                    driver.findElement(entry.getValue()).click();
+                }
             }
         });
-
+        //判断完成后将隐式等待时间恢复
+        driver.manage().timeouts().implicitlyWait(8,TimeUnit.SECONDS);
     }
+
+//    private static void handleAlertByPageSource() {
+//        //todo: xpath匹配， 标记 定位
+//        String xml = driver.getPageSource();
+//        List<String> alertBoxs = new ArrayList<>();
+//        alertBoxs.add("xxx");
+//        alertBoxs.add("yyy");
+//
+//        alertBoxs.forEach(alert -> {
+//            if (xml.contains(alert)) {
+//                driver.findElement(By.id(alert)).click();
+//            }
+//        });
+//
+//    }
 
     public void parseSteps(){
         String method=Thread.currentThread().getStackTrace()[2].getMethodName();

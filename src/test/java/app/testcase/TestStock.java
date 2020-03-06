@@ -44,7 +44,7 @@ public class TestStock {
     @MethodSource("data")
     public void addStock(String code, String name){
         stockPage.toSearch().search(code).select().cancel();
-        assertThat(stockPage.getAllStocks(), hasItem(name));
+        assertThat(stockPage.getAllStocks(), hasItem(name));//是否有name变量股票
 
     }
 
