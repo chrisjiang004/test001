@@ -4,6 +4,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import selenium.pages.APP;
+import selenium.pages.BasePage;
 
 public class TestWework {
     public static APP app;//app设置成静态类 方便其他testcase使用
