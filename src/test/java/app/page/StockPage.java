@@ -6,17 +6,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StockPage extends BasePage {
-    public StockPage deleteAll(){
-//        click(By.id("com.xueqiu.android:id/edit_group"));
-//        click(By.id("com.xueqiu.android:id/check_all"));
-//        click(By.id("com.xueqiu.android:id/cancel_follow"));
-//        click(By.id("com.xueqiu.android:id/md_buttonDefaultPositive"));
-//        click(By.id("com.xueqiu.android:id/action_close"));
 
-        parseSteps();
+    //取消已关注的自选股
+    public StockPage deleteAll(){
+        click(By.id("com.xueqiu.android:id/edit_group"));//进入管理自选股票页面
+        click(By.id("com.xueqiu.android:id/check_all"));//点击全选
+        click(By.id("com.xueqiu.android:id/cancel_follow"));//点击删除自选按钮
+        click(By.id("com.xueqiu.android:id/tv_right"));//点击确定取消关注
+        click(By.id("com.xueqiu.android:id/action_close"));//点击完成按钮回到行情页
+
+        //parseSteps();//使用步骤参数方法
         return this;
     }
 
+    //获取所有自选股的list
     public List<String> getAllStocks(){
 
         handleAlert();
@@ -30,7 +33,7 @@ public class StockPage extends BasePage {
     }
 
     public StockPage addDefaultSelectedStocks(){
-        click(By.id("com.xueqiu.android:id/add_to_portfolio_stock"));
+        click(By.id("com.xueqiu.android:id/subscribe"));//点击一键添加自选 元素会变
         return this;
     }
 

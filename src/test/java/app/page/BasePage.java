@@ -74,10 +74,12 @@ public class BasePage {
                 i = 1;
                 return driver.findElement(by);
             }
-            System.out.println("进入弹框处理第"+i+"次");
-            handleAlertByPageSource();
-            i++;
-            return findElement(by); //最后调用自身完成递归，防止多弹框同时出现造成定位失败
+            else {
+                System.out.println("进入弹框处理第" + i + "次");
+                handleAlertByPageSource();
+                i++;
+                return findElement(by); //最后调用自身完成递归，防止多弹框同时出现造成定位失败
+            }
         }
     }
 
@@ -96,7 +98,7 @@ public class BasePage {
                 System.out.println("进入弹框处理第"+j+"次");
                 handleAlertByPageSource();
                 j++;
-                findElement(by).click();//最后调用自身完成递归，防止多弹框同时出现造成定位失败
+                click(by);//最后调用自身完成递归，防止多弹框同时出现造成定位失败
             }
         }
     }

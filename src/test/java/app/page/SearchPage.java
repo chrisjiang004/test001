@@ -8,6 +8,8 @@ public class SearchPage extends BasePage{
     private By inputBox=By.id("com.xueqiu.android:id/search_input_text");
     private By name=By.id("com.xueqiu.android:id/name");
 
+
+    //search方法改成 参数化步骤方式
     public SearchPage search(String keyword) {
         HashMap<String, Object> data=new HashMap<>();
         data.put("keyword", keyword);
@@ -25,6 +27,7 @@ public class SearchPage extends BasePage{
 
     }
 
+    //使用步骤参数化方式
     public App cancel(){
 //        click(By.id("com.xueqiu.android:id/action_close"));
         parseSteps();

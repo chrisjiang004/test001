@@ -32,16 +32,18 @@ public class TestStock {
     @Order(100)
     @Test
     public void addDefaultSelectedStocks(){
+        //先判断是否有自选股 有则删除全部
         if(stockPage.getAllStocks().size()>=1){
-            stockPage.deleteAll();
+            stockPage.deleteAll();//删除已有自选股
         }
+        //使用 [一键添加自选股] 按钮6个自选股后,再获取自选股列表，是否是6
         assertThat(stockPage.addDefaultSelectedStocks().getAllStocks().size(), greaterThanOrEqualTo(6));
     }
 
     @Order(200)
-    @ParameterizedTest
+    @ParameterizedTest //参数化case就不能再加@Test
 //    @ValueSource(strings = { "pdd", "xiaomi"})
-    @MethodSource("data")
+    @MethodSource("data") //这个方法的data可以使用Stream流数据
     public void addStock(String code, String name){
         stockPage.toSearch().search(code).select().cancel();
         assertThat(stockPage.getAllStocks(), hasItem(name));//是否有name变量股票

@@ -1,6 +1,7 @@
 package app.page;
 
 import io.appium.java_client.android.AndroidDriver;
+import org.openqa.selenium.By;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -26,7 +27,7 @@ public class App extends BasePage{
         desiredCapabilities.setCapability("appPackage", "com.xueqiu.android");
         desiredCapabilities.setCapability("appActivity", ".view.WelcomeActivityAlias");
         //noreset 是否保留缓存
-        desiredCapabilities.setCapability("noReset", false);
+        desiredCapabilities.setCapability("noReset", true);
         //自动给所有权限赋值
         desiredCapabilities.setCapability("autoGrantPermissions", true);
         desiredCapabilities.setCapability("udid", System.getenv("UDID"));
@@ -55,15 +56,18 @@ public class App extends BasePage{
                 });
     }
 
+
+
     public SearchPage toSearch() {
 //        click(By.id("com.xueqiu.android:id/home_search"));
         parseSteps("/app/page/app.yaml", "toSearch");
         return new SearchPage();
     }
 
+    //点击行情菜单，版本不一样，新版没有text=行情
     public StockPage toStocks(){
-//        click(By.xpath("//*[contains(@resource-id, 'tab_name') and @text='自选']"));
-        parseSteps("/app/page/app.yaml", "toStocks");
+         click(By.xpath("//android.widget.TabWidget/android.widget.RelativeLayout[2]/android.widget.ImageView"));
+       // parseSteps("/app/page/app.yaml", "toStocks");
         return new StockPage();
 
     }
