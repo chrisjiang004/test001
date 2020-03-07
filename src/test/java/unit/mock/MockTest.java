@@ -1,5 +1,7 @@
 package unit.mock;
 
+import mock.Division;
+import mock.DivisionMock;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

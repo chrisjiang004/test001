@@ -1,5 +1,6 @@
 package unit.mock;
 
+import mock.Division2;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
