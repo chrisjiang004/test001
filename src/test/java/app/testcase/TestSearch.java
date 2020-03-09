@@ -36,7 +36,7 @@ public class TestSearch {
 //                { "jd", 33f }
 //        });//list中是键值对
 
-        //使用yaml的存取参数
+        //使用yaml的存取参数 转换成list
         ObjectMapper mapper=new ObjectMapper(new YAMLFactory());
         String path="/"+TestSearch.class.getCanonicalName().replace('.', '/')+".yaml";
         Object[][] demo=mapper.readValue(
