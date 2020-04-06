@@ -98,6 +98,7 @@ public class TestUser {
 
     @ParameterizedTest
     @CsvFileSource(resources = "TestUser.csv")
+    //csv文件数据驱动是最常用的。简单数据类型适用
     public void deleteByParams(String name, String userid) {
         String nameNew = name;
         if (userid.isEmpty()) {
@@ -106,7 +107,7 @@ public class TestUser {
 
         HashMap<String, Object> data = new HashMap<>();
         data.put("name", nameNew);
-        data.put("department", new int[]{1});
+        data.put("department", new int[]{1});//赋值[1]
         data.put("mobile", String.valueOf(System.currentTimeMillis()).substring(0, 11));
 
         User user = new User();
@@ -118,6 +119,7 @@ public class TestUser {
 
     @ParameterizedTest
     @MethodSource("deleteByParamsFromYamlData")
+    //从yaml文件中，yaml数据类型灵活，但是读取比较麻烦，如果是复杂类型就使用yaml来参数化
     public void deleteByParamsFromYaml(String name, String userid, List<Integer> departs) {
         String nameNew = name;
         if (userid.isEmpty()) {
@@ -143,7 +145,7 @@ public class TestUser {
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
-        //生成一个代表List<HashMap>的类型，用于传递给readValue
+        //生成一个代表List<HashMap>的类型，用于传递给readValue。TypeReference代表复杂类型
         TypeReference<List<HashMap<String, Object>>> typeRef =
                 new TypeReference<List<HashMap<String, Object>>>() {
                 };
@@ -153,21 +155,21 @@ public class TestUser {
         try {
             data = mapper.readValue(
                     TestUser.class.getResourceAsStream("TestUser.yaml"),
-                    typeRef);
+                    typeRef);//"TestUser.yaml"resource下的相对路径下找该文件 把文件转成类或者类型对象
             ArrayList<Arguments> results = new ArrayList<>();
             data.forEach(map -> {
                 results.add(arguments(
                         map.get("name").toString(),
                         map.get("userid").toString(),
-                        map.get("departs")
+                        map.get("departs")//departs的节点没有值就是null
                 ));
             });
 
-            return results.stream();
+            return results.stream();//把2维数组result转成stream流对象
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Stream.of();
+        return Stream.of();//以流的方式循环输出String数组
 
     }
 

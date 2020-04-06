@@ -36,10 +36,11 @@ public class TestHttp {
     }
 
     @Test
+    //获取请求url
     void filterDemo() {
         given().filter((req, res, ctx) -> {
             System.out.println(req.getURI());
-            Response resReal = ctx.next(req, res);
+            Response resReal = ctx.next(req, res);//发起请求 resReal就是修改后的返回结果
             System.out.println(resReal.getStatusLine());
             return resReal;
         })
@@ -84,4 +85,12 @@ public class TestHttp {
                 .when().log().all().get("http://127.0.0.1:8000/user.json")
                 .then().log().all().statusCode(200);
     }
+
+    @Test
+    void base64DecodeFilter(){
+        given().filter(new Base64DecodeFilter())
+                .when().log().all().get("http://127.0.0.1:8000/user.json")
+                .then().log().all().statusCode(200);
+    }
+
 }

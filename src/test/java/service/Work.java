@@ -7,6 +7,7 @@ public class Work {
     private static Work work;
     String token;
 
+    //单例模式 防止并发出错
     public static Work getInstance() {
         if (work == null) {
             work = new Work();
@@ -16,10 +17,11 @@ public class Work {
 
 
     public String getToken() {
+        //需要改成自己的企业微信参数
         if (token == null) {
             token = given()
-                    .param("corpid", "wwd6da61649bd66fea")
-                    .param("corpsecret", "C7uGOrNyxWWzwBsUyWEbLdbZBDrc71PNOhyQ_YYPhts")
+                    .param("corpid","ww69789e71d8507b96")
+                    .param("corpsecret","36KC68MEb4HIhrsBxZx8xtAu06I5fya3RdnM8ZFjaf0")
                     .when()
                     .log().all()
                     .get("https://qyapi.weixin.qq.com/cgi-bin/gettoken")

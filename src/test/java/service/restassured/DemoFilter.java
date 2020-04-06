@@ -9,7 +9,9 @@ import io.restassured.specification.FilterableResponseSpecification;
 
 public class DemoFilter implements Filter {
     @Override
-    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+    public Response filter(FilterableRequestSpecification requestSpec,
+                           FilterableResponseSpecification responseSpec,
+                           FilterContext ctx) {
         Response responseOrigin=ctx.next(requestSpec, responseSpec);
         return new ResponseBuilder().clone(responseOrigin).setStatusCode(404).build();
     }

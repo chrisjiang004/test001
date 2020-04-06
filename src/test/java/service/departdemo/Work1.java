@@ -16,12 +16,12 @@ public class Work1 {
     public String getTocken(){
         if (token == null){
             token = given()
-                    .log().all().
-                            param("corpid","ww69789e71d8507b96").
+//                    .log().all()
+                            .param("corpid","ww69789e71d8507b96").
                             param("corpsecret","36KC68MEb4HIhrsBxZx8xtAu06I5fya3RdnM8ZFjaf0").
-                            when().
-                            log().all().
-                            get("https://qyapi.weixin.qq.com/cgi-bin/gettoken").
+                            when()
+//                            .log().all()
+                            .get("https://qyapi.weixin.qq.com/cgi-bin/gettoken").
                             then().
                             log().all().
                             assertThat().body("errcode",equalTo(0))

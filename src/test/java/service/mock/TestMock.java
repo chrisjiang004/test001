@@ -4,7 +4,6 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static io.restassured.RestAssured.given;
@@ -14,6 +13,7 @@ public class TestMock {
     static WireMockServer wireMockServer;
 
     @BeforeAll
+    //启动wiremock服务
     static void beforeAll() {
         wireMockServer = new WireMockServer(options().port(8089)); //No-args constructor will start on port 8080, no HTTPS
         wireMockServer.start();
@@ -27,7 +27,7 @@ public class TestMock {
 
         given()
                 .when().log().all().get("http://127.0.0.1:8089/stub")
-                .then().log().all().body(containsString("stub"));
+                .then().log().all().body(containsString("stub"));//不是json直接校验字符串
 
     }
 
@@ -36,7 +36,7 @@ public class TestMock {
     void mock() throws InterruptedException {
         // Low priority catch-all proxies to otherhost.com by default
         stubFor(get(urlMatching(".*")).atPriority(10)
-                .willReturn(aResponse().proxiedFrom("http://106.75.214.88")));
+                .willReturn(aResponse().proxiedFrom("http://106.75.214.88")));//多跳转了一次url
 
 
 // High priority stub will send a Service Unavailable response

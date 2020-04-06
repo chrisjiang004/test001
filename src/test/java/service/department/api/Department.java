@@ -29,6 +29,7 @@ public class Department {
         data.put("parentid", parentid);
 
         return given()
+                .log().all()
                 .queryParam("access_token", Work.getInstance().getToken())
                 .contentType(ContentType.JSON)
                 .body(data)
